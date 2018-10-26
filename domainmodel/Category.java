@@ -8,7 +8,7 @@ public class Category {
 	public Category(String title, double limit) {
 		this.title = title;
 		this.limit = limit;
-		this.alert = true;
+		this.setAlert(true);
 	}
 
 	public String getTitle() {
@@ -28,10 +28,18 @@ public class Category {
 	}
 	
 	public void disable() {
-		this.alert = false;
+		this.setAlert(false);
 	}
 	
 	public void enable() {
-		this.alert = true;
+		this.setAlert(true);
+	}
+
+	public boolean isAlert() {
+		return alert;
+	}
+
+	public void setAlert(boolean alert) {
+		this.alert = alert;
 	}
 }

@@ -17,7 +17,9 @@ public class User {
 		this.transactionRecord = new ArrayList<Transaction>();
 		this.budgetCategories = new ArrayList<Category>();		
 		this.nextTransactionID = 0;
-		addTestMaterial();
+		
+		//for testing purposes
+		//addTestMaterial();
 	}
 	
 	public void addTestMaterial() {

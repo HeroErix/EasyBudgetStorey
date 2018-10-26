@@ -11,12 +11,12 @@ public class App {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					View v = new View();
+					//View v = new View();
 					reView rv = new reView();
 					rv.setVisible(true);
 					Controller c = new Controller(rv);
 					c.initController();
-					v.setVisible(true);
+					//v.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

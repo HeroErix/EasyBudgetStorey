@@ -19,31 +19,20 @@ public class Controller {
 	private reView view;
 	private ArrayList<User> accounts;
 	private int userIndex;
-	private User currentUser;
-	
+	private User currentUser;	
+
 	public Controller(reView v) {		
 		accounts = new ArrayList<User>();
-		view = v;
-		userIndex = 0;
-		addUser(new User("Jacob", "Password", 5000));
-		while(accounts.size()==0)
-		{
-			createUser();
-			if (accounts.size()==0)
-			{
-				JOptionPane.showMessageDialog(null, 
-					"Please create at least one user.",
-					"Initial User Required", JOptionPane.INFORMATION_MESSAGE);
-			}
-		}
+		view = v;	
+		if (accounts.size()==0){addUser(new User("Default", "", 0));}
 		currentUser = accounts.get(userIndex);
 	}
 	
 	public void initController() {		
 		
 		view.getBtnNewAccount().addActionListener(e -> createUser());
-		view.getMntmNewCatagory().addActionListener(e -> addCategory());
-		view.getMntmNewTransaction().addActionListener(e -> addTransaction());
+		view.getMntmNewCatagory().addActionListener(e -> createCategory());
+		view.getMntmNewTransaction().addActionListener(e -> createTransaction());
 		view.getChoice().addItemListener(e -> setUser());
 		view.getTabbedPane().addChangeListener(e -> swapTab());
 //		view.getBtnAccount().addActionListener(e -> showAccountDetails());
@@ -68,30 +57,21 @@ public class Controller {
         }
 	}
 	
-	private void populateTransactions() {		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date dateWithoutTime;
+	private void populateTransactions() {
 		JTextArea transactionBox = view.getTextArea();
 		transactionBox.setText("");
 		transactionBox.append(
 				"ID" + "\t" +
-				"Date" + "\t\t" +
+				"Date" + "\t\t\t" +
 				"Amount" + "\t" +
 				"Category" + "\n");
 		for(int i=0; i<currentUser.getTransactionRecord().size(); i++) {
 			Transaction thisTransaction = currentUser.getTransactionRecord().get(i);
-			try {
-				dateWithoutTime = sdf.parse(sdf.format(thisTransaction.getDate()));
 				transactionBox.append(
 						thisTransaction.getId() + "\t" +
-						dateWithoutTime + "\t\t" +
+						thisTransaction.getDate() + "\t\t" +
 						thisTransaction.getValue() + "\t" +
-						thisTransaction.getCategory().getTitle() + "\n");
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+						thisTransaction.getCategory().getTitle() + "\n");			
 		}
 		
 	}
@@ -99,11 +79,16 @@ public class Controller {
 	private void populateCategories() {
 		JTextArea categoryBox = view.getCategoryList();
 		categoryBox.setText("");
+		categoryBox.append(
+				"Category" + "\t\t" +
+				"Limit" + "\t" +
+				"Enabled" + "\n");
 		for(int i=0; i<currentUser.getBudgetCategories().size(); i++) {
 			Category thisCategory = currentUser.getBudgetCategories().get(i);
 			categoryBox.append(
 					thisCategory.getTitle() + "\t\t" +
-					thisCategory.getLimit() + "\n");
+					thisCategory.getLimit() + "\t" + 
+					thisCategory.isAlert() + "\n");
 		}
 		
 	}
@@ -130,13 +115,10 @@ public class Controller {
 		}
 		view.getChoice().select(currentUser.getName());
 		view.getLblBalanceAmt().setText(Double.toString(currentUser.getAcctBalance()));
-		//setCategories();
-		
 	}
 		
 	//Shows Dialog to user to create new account
 	private void createUser() {
-		
 		JTextField nameField = new JTextField(5);
 		JTextField passwordField = new JTextField(5);
 		JTextField balanceField = new JTextField(5);
@@ -150,7 +132,6 @@ public class Controller {
 		myPanel.add(Box.createHorizontalStrut(15)); // a spacer
 		myPanel.add(new JLabel("Balance:"));
 		myPanel.add(balanceField);
-		
 		int result = JOptionPane.showConfirmDialog(null, myPanel, "New User", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			User newUser = new User(nameField.getText(), passwordField.getText(), Double.parseDouble(balanceField.getText()));
@@ -159,19 +140,21 @@ public class Controller {
 	}
 	
 	//Adds new account to the list
-	private void addUser(User newUser) {
-		
+	void addUser(User newUser) {		
 		accounts.add(newUser);
 		userIndex = accounts.size()-1;
+		currentUser = accounts.get(userIndex);
 		
-		view.getChoice().add(newUser.getName()); //Must use accounts.get(userIndex) because first user is created before currentUser
+		view.getChoice().add(newUser.getName());
 		view.getChoice().select(newUser.getName());
 		view.getLblBalanceAmt().setText(Double.toString(newUser.getAcctBalance()));		
 		
-		JOptionPane.showMessageDialog(null, "New User Created", "Info", JOptionPane.INFORMATION_MESSAGE);
+		if (!newUser.getName().equals("Default")){
+			JOptionPane.showMessageDialog(null, "New User Created", "Info", JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
 	
-	private void addCategory() {
+	private void createCategory() {
 		JTextField titleField = new JTextField(5);
 		JTextField limitField = new JTextField(5);
 		
@@ -189,13 +172,9 @@ public class Controller {
 				int categoryNumber;
 				double limit = Double.parseDouble(limitField.getText());
 				
-				Category newCategory = new Category(titleField.getText(), limit );
-				currentUser.getBudgetCategories().add(newCategory);
+				currentUser.addCategory(titleField.getText(), limit);
 				
 				categoryNumber = currentUser.getBudgetCategories().size();
-				
-				//Add category to user list of categories
-				//view.getCategoryChoice().add(currentUser.getBudgetCategories().get(categoryNumber-1).getId());
 			
 				JOptionPane.showMessageDialog(null,
 					"New Category Entered: " +
@@ -206,12 +185,12 @@ public class Controller {
 			} catch (NumberFormatException e) {
 			    //Limit must be double
 				JOptionPane.showMessageDialog(null,	"Balance must be double.", "Info", JOptionPane.INFORMATION_MESSAGE);
-				addCategory();
+				createCategory();
 			}
 		}
 	}
 	
-	private void addTransaction() {		
+	private void createTransaction() {		
 		JTextField amountField = new JTextField(5);
 		JRadioButton rdbtnIncome = new JRadioButton("Income"), rdbtnExpense = new JRadioButton("Expense");
 		Choice categoryChoice = new Choice();		
@@ -271,6 +250,14 @@ public class Controller {
 					, "Transaction Created", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
+	}
+	
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
 	}
 	
 }
