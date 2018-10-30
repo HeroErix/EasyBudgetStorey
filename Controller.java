@@ -58,7 +58,7 @@ public class Controller {
 	}
 	
 	private void populateTransactions() {
-		JTextArea transactionBox = view.getTextArea();
+		JTextArea transactionBox = view.getTransactionList();
 		transactionBox.setText("");
 		transactionBox.append(
 				"ID" + "\t" +

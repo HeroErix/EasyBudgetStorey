@@ -41,9 +41,18 @@ public class User {
 		transactionRecord.add(t);
 	}
 	
+	public void addTransaction(Transaction transaction) {
+		acctBalance += transaction.getValue();
+		transactionRecord.add(transaction);
+	}
+	
 	public void addCategory(String title, double limit) {
 		Category c = new Category(title, limit);
 		budgetCategories.add(c);	
+	}
+	
+	public void addCategory(Category category) {
+		budgetCategories.add(category);	
 	}
 
 	public String getName() {

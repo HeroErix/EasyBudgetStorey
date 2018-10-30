@@ -208,7 +208,7 @@ public class reView extends JFrame {
 	public JTabbedPane getTabbedPane() {
 		return tabbedPane;
 	}
-	public JTextArea getTextArea() {
+	public JTextArea getTransactionList() {
 		return transactionList;
 	}
 	public JTextArea getCategoryList() {
