@@ -51,7 +51,7 @@ public class AllTests {
 		User testUser = test.getCurrentUser();
 		Category testCategory = new Category("Food", 50);
 		testUser.addCategory(testCategory);
-		assertEquals(testUser.getBudgetCategories().get(0), testCategory);
+		assertEquals(testUser.getBudgetCategories().get(1), testCategory);
 		
 	}
 	
@@ -64,12 +64,13 @@ public class AllTests {
 		Category testCategory = new Category("Food", 50);
 		testUser.addCategory(testCategory);
 		ui.getTabbedPane().setSelectedIndex(2);
-		//System.out.println(ui.getCategoryList().getText());
-		//System.out.println("Category\t\tLimit\tEnabled\nFood\t\t50.0\ttrue\n");
 		assertEquals(ui.getCategoryList().getText(), 
 				"Category\t\t"
 				+ "Limit\t"
-				+ "Enabled\n"+
+				+ "Enabled\n"
+				+ "None\t\t"
+				+ "0.0\t"
+				+ "false\n" +
 				testCategory.getTitle()+"\t\t"+
 				testCategory.getLimit()+"\t"+
 				testCategory.isAlert()+"\n");
@@ -103,13 +104,14 @@ public class AllTests {
 		ui.getTabbedPane().setSelectedIndex(1);
 		assertEquals(ui.getTransactionList().getText(), 
 				"ID\t"
-				+ "Date\t\t\t"
+				+ "Date\t\t"
 				+ "Amount\t"
 				+ "Category\n"+
 				testTransaction.getId()+"\t"+
-				testDate.toString()+"\t\t"+
+				test.removeTime(testDate)+"\t"+
 				testTransaction.getValue()+"\t"+
 				testTransaction.getCategory().getTitle()+"\n");
 
 	}
 }
+

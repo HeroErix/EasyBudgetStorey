@@ -17,6 +17,9 @@ public class User {
 		this.transactionRecord = new ArrayList<Transaction>();
 		this.budgetCategories = new ArrayList<Category>();		
 		this.nextTransactionID = 0;
+		Category none = new Category("None", 0);
+		none.setAlert(false);
+		addCategory(none);
 		
 		//for testing purposes
 		//addTestMaterial();

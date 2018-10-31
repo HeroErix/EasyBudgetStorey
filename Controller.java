@@ -62,14 +62,14 @@ public class Controller {
 		transactionBox.setText("");
 		transactionBox.append(
 				"ID" + "\t" +
-				"Date" + "\t\t\t" +
+				"Date" + "\t\t" +
 				"Amount" + "\t" +
 				"Category" + "\n");
 		for(int i=0; i<currentUser.getTransactionRecord().size(); i++) {
 			Transaction thisTransaction = currentUser.getTransactionRecord().get(i);
 				transactionBox.append(
 						thisTransaction.getId() + "\t" +
-						thisTransaction.getDate() + "\t\t" +
+						removeTime(thisTransaction.getDate()) + "\t" +
 						thisTransaction.getValue() + "\t" +
 						thisTransaction.getCategory().getTitle() + "\n");			
 		}
@@ -148,10 +148,6 @@ public class Controller {
 		view.getChoice().add(newUser.getName());
 		view.getChoice().select(newUser.getName());
 		view.getLblBalanceAmt().setText(Double.toString(newUser.getAcctBalance()));		
-		
-		if (!newUser.getName().equals("Default")){
-			JOptionPane.showMessageDialog(null, "New User Created", "Info", JOptionPane.INFORMATION_MESSAGE);
-		}
 	}
 	
 	private void createCategory() {
@@ -170,24 +166,16 @@ public class Controller {
 			try {			    
 			    //Create category				
 				int categoryNumber;
-				double limit = Double.parseDouble(limitField.getText());
-				
-				currentUser.addCategory(titleField.getText(), limit);
-				
+				double limit = Double.parseDouble(limitField.getText());				
+				currentUser.addCategory(titleField.getText(), limit);				
 				categoryNumber = currentUser.getBudgetCategories().size();
-			
-				JOptionPane.showMessageDialog(null,
-					"New Category Entered: " +
-					"\nCategory Number: " + categoryNumber +
-					"\nID: " + currentUser.getBudgetCategories().get(categoryNumber-1).getTitle() + 
-					"\nLimit: " + currentUser.getBudgetCategories().get(categoryNumber-1).getLimit(), 
-					"Info", JOptionPane.INFORMATION_MESSAGE);
 			} catch (NumberFormatException e) {
 			    //Limit must be double
 				JOptionPane.showMessageDialog(null,	"Balance must be double.", "Info", JOptionPane.INFORMATION_MESSAGE);
 				createCategory();
 			}
 		}
+		populateCategories();
 	}
 	
 	private void createTransaction() {		
@@ -196,11 +184,10 @@ public class Controller {
 		Choice categoryChoice = new Choice();		
 		//Populate categoryChoice based on currentUser
 		categoryChoice.removeAll();
-		categoryChoice.add("None");
 		for(int i = 0; i<currentUser.getBudgetCategories().size(); i++) {
 			categoryChoice.add(currentUser.getBudgetCategories().get(i).getTitle());
 		}
-		DatePicker datePick = new DatePicker("yyyy-MM-dd", new Date());
+		DatePicker datePick = new DatePicker();
 		
 		JPanel myPanel = new JPanel();
 		myPanel.add(new JLabel("Amount:"));
@@ -230,10 +217,7 @@ public class Controller {
 			}
 			
 			for(int i=0; i<currentUser.getBudgetCategories().size(); i++) {
-				if(catID.compareTo("None") == 0) {
-					cat = null;
-				}
-				else if(catID.compareTo(currentUser.getBudgetCategories().get(i).getTitle()) == 0) {
+				if(catID.compareTo(currentUser.getBudgetCategories().get(i).getTitle()) == 0) {
 					cat = currentUser.getBudgetCategories().get(i);
 				}
 			}
@@ -241,14 +225,8 @@ public class Controller {
 			currentUser.addTransaction(amount, cat, date);			
 			view.getLblBalanceAmt().setText(Double.toString(currentUser.getAcctBalance()));
 			
-			JOptionPane.showMessageDialog(null,
-					"New Transaction Entered: " +
-					"\nTransaction Number: " + (currentUser.getNextTransactionID()-1) +
-					"\nType: " + type + 
-					"\nAmount: " + amountField.getText() + 
-					"\nCategory: " + categoryChoice.getSelectedItem()
-					, "Transaction Created", JOptionPane.INFORMATION_MESSAGE);
 		}
+		populateTransactions();
 		
 	}
 	
@@ -258,6 +236,80 @@ public class Controller {
 
 	public void setCurrentUser(User currentUser) {
 		this.currentUser = currentUser;
+	}
+	
+	public String removeTime(Date dateWithTime) {
+		
+		String dateWithoutTime, day, month, date, year = "";
+		switch(dateWithTime.getDay()) {
+			case 0:
+				day = "Sun";
+				break;
+			case 1:
+				day = "Mon";
+				break;
+			case 2:
+				day = "Tue";
+				break;
+			case 3:
+				day = "Wed";
+				break;
+			case 4:
+				day = "Thu";
+				break;
+			case 5:
+				day = "Fri";
+				break;
+			case 6:
+				day = "Sat";
+				break;
+			default:
+				day = "Sun";
+		}
+		switch(dateWithTime.getMonth()) {
+			case 0:
+				month = "Jan";
+				break;
+			case 1:
+				month = "Feb";
+				break;
+			case 2:
+				month = "Mar";
+				break;
+			case 3:
+				month = "Apr";
+				break;
+			case 4:
+				month = "May";
+				break;
+			case 5:
+				month = "Jun";
+				break;
+			case 6:
+				month = "Jul";
+				break;	
+			case 7:
+				month = "Aug";
+				break;
+			case 8:
+				month = "Sep";
+				break;
+			case 9:
+				month = "Oct";
+				break;	
+			case 10:
+				month = "Nov";
+				break;	
+			case 11:
+				month = "Dec";
+				break;
+			default:
+				month = "Jan";
+		}
+		date = "" + dateWithTime.getDate();
+		year = "" + (dateWithTime.getYear()+1900);
+		dateWithoutTime = day + " " + month + " " + date + " " + year;
+		return dateWithoutTime;		
 	}
 	
 }
