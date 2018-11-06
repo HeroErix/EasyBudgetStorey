@@ -22,20 +22,20 @@ public class User {
 		addCategory(none);
 		
 		//for testing purposes
-		//addTestMaterial();
+		addTestMaterial();
 	}
 	
 	public void addTestMaterial() {
-		addCategory("Food", 100);
+		addCategory("Food", 50);
 		addCategory("Gas", 100);
-		addCategory("Bills", 100);
-		addCategory("Job", 100);
+		addCategory("Bills", 500);
+		addCategory("Job", 1000);
 		addCategory("Entertainment", 100);
 		
-		addTransaction(-20, budgetCategories.get(0), new Date(2018));
-		addTransaction(500, budgetCategories.get(3), new Date(205618));
-		addTransaction(-100, budgetCategories.get(1), new Date(201465138));
-		addTransaction(-30, budgetCategories.get(4), new Date(2015468));
+		addTransaction(-20, budgetCategories.get(1), new Date(2018));
+		addTransaction(500, budgetCategories.get(4), new Date(205618));
+		addTransaction(-100, budgetCategories.get(2), new Date(201465138));
+		addTransaction(-30, budgetCategories.get(5), new Date(2015468));
 	}
 	
 	public void addTransaction(double amt, Category cat, Date date) {
@@ -56,6 +56,25 @@ public class User {
 	
 	public void addCategory(Category category) {
 		budgetCategories.add(category);	
+	}
+	
+	public void removeCategory(Category toDelete){
+		Transaction thisTransaction = null;
+				
+		//Replace category of all transactions that have the selected category with None
+		for (int i = 0; i < transactionRecord.size(); i++) {
+			thisTransaction = transactionRecord.get(i);
+			if (thisTransaction.getCategory() == toDelete) {
+				thisTransaction.setCategory(budgetCategories.get(0));
+			}
+		}
+		
+		budgetCategories.remove(toDelete);		
+	}
+	
+	public void removeTransaction(Transaction toDelete){
+		acctBalance-=toDelete.getValue();
+		transactionRecord.remove(toDelete);		
 	}
 
 	public String getName() {

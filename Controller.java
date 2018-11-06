@@ -1,6 +1,4 @@
 import java.awt.Choice;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -8,9 +6,11 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 
 import UI.*;
 import domainmodel.*;
@@ -35,18 +35,12 @@ public class Controller {
 		view.getMntmNewTransaction().addActionListener(e -> createTransaction());
 		view.getChoice().addItemListener(e -> setUser());
 		view.getTabbedPane().addChangeListener(e -> swapTab());
-//		view.getBtnAccount().addActionListener(e -> showAccountDetails());
-//		view.getBtnEnterTransaction().addActionListener(e -> enterTransaction());
-//		view.getBtnAddUser().addActionListener(e -> toggleAddUser());
-//		view.getBtnToggleMenu().addActionListener(e -> toggleMenu());
-//		view.getBtnEnterNewTransaction().addActionListener(e -> toggleTransactionPanel());
-//		view.getBtnAddCategory().addActionListener(e -> toggleCategoryAdd());
-//		
-//		view.getBtnEnterCategory().addActionListener(e -> enterCategory());
-//		view.getBtnShowRecentTransactions().addActionListener(e -> toggleTransactionRecord());
-		
+		view.getMntmEditCatagory().addActionListener(e -> editCategory());
+		view.getMntmEditTransaction().addActionListener(e -> editTransaction());
+		view.getMntmDeleteCatagory().addActionListener(e -> deleteCategory());
+		view.getMntmDeleteTransaction().addActionListener(e -> deleteTransaction());
 	}
-	
+
 	private void swapTab() {		
 		int index = view.getTabbedPane().getSelectedIndex();
         String tab = view.getTabbedPane().getTitleAt(index);        
@@ -93,14 +87,12 @@ public class Controller {
 		
 	}
 	
-	private void showAccountDetails() {
-		
+	private void showAccountDetails() {		
 		JOptionPane.showMessageDialog(null, 
 				"\nUsername: " + currentUser.getName() +
 				"\nPassword: " + currentUser.getPassword() +
 				"\nBalance : " + currentUser.getAcctBalance()
-				, "Info", JOptionPane.INFORMATION_MESSAGE);
-	
+				, "Info", JOptionPane.INFORMATION_MESSAGE);	
 	}
 	
 	
@@ -120,7 +112,7 @@ public class Controller {
 	//Shows Dialog to user to create new account
 	private void createUser() {
 		JTextField nameField = new JTextField(5);
-		JTextField passwordField = new JTextField(5);
+		JPasswordField passwordField = new JPasswordField(5);
 		JTextField balanceField = new JTextField(5);
 		
 		JPanel myPanel = new JPanel();
@@ -134,6 +126,7 @@ public class Controller {
 		myPanel.add(balanceField);
 		int result = JOptionPane.showConfirmDialog(null, myPanel, "New User", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
+			@SuppressWarnings("deprecation")
 			User newUser = new User(nameField.getText(), passwordField.getText(), Double.parseDouble(balanceField.getText()));
 			addUser(newUser);
 		}				
@@ -165,10 +158,8 @@ public class Controller {
 		if (result == JOptionPane.OK_OPTION) {
 			try {			    
 			    //Create category				
-				int categoryNumber;
 				double limit = Double.parseDouble(limitField.getText());				
-				currentUser.addCategory(titleField.getText(), limit);				
-				categoryNumber = currentUser.getBudgetCategories().size();
+				currentUser.addCategory(titleField.getText(), limit);
 			} catch (NumberFormatException e) {
 			    //Limit must be double
 				JOptionPane.showMessageDialog(null,	"Balance must be double.", "Info", JOptionPane.INFORMATION_MESSAGE);
@@ -176,6 +167,74 @@ public class Controller {
 			}
 		}
 		populateCategories();
+	}
+	
+	private Category selectCategory() {
+		Category cat = null;
+		Choice categoryChoice = new Choice();		
+		//Populate categoryChoice based on currentUser
+		categoryChoice.removeAll();
+		for(int i = 1; i<currentUser.getBudgetCategories().size(); i++) {
+			categoryChoice.add(currentUser.getBudgetCategories().get(i).getTitle());
+		}
+				
+		JPanel myPanel = new JPanel();
+		myPanel.add(new JLabel("Category:"));
+		myPanel.add(categoryChoice);
+		
+		int result = JOptionPane.showConfirmDialog(null, myPanel, "Select Category", JOptionPane.OK_CANCEL_OPTION);
+		if (result == JOptionPane.OK_OPTION) {
+			//Select category
+			String catID = categoryChoice.getSelectedItem();			
+			for(int i=0; i<currentUser.getBudgetCategories().size(); i++) {
+				if(catID.compareTo(currentUser.getBudgetCategories().get(i).getTitle()) == 0) {
+					cat = currentUser.getBudgetCategories().get(i);
+				}
+			}				
+		}
+		return cat;
+	}
+	
+	private void editCategory(){
+		Category cat = selectCategory();
+		if (cat != null) {
+			JTextField titleField = new JTextField(cat.getTitle(), 10);
+			JTextField limitField = new JTextField(Double.toString(cat.getLimit()), 10);
+			JToggleButton enabledButton = new JToggleButton("Enabled", cat.isAlert());
+			
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel("New Title:"));
+			myPanel.add(titleField);
+			myPanel.add(Box.createVerticalStrut(15)); // a spacer
+			myPanel.add(new JLabel("Limit:"));
+			myPanel.add(limitField);
+			myPanel.add(Box.createVerticalStrut(15)); // a spacer
+			myPanel.add(enabledButton);
+			
+			int result = JOptionPane.showConfirmDialog(null, myPanel, "Edit Category", JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				try {			    
+				    //Create category				
+					double limit = Double.parseDouble(limitField.getText());
+					cat.setTitle(titleField.getText());
+					cat.setLimit(limit);
+					cat.setAlert(enabledButton.isSelected());				
+				} catch (NumberFormatException e) {
+				    //Limit must be double
+					JOptionPane.showMessageDialog(null,	"Balance must be double.", "Info", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+			populateCategories();
+		}
+	}
+	
+	private void deleteCategory(){
+		Category cat = selectCategory();
+		if (cat != null) {
+			//Delete stuff
+			currentUser.removeCategory(cat);
+			populateCategories();
+		}
 	}
 	
 	private void createTransaction() {		
@@ -202,18 +261,16 @@ public class Controller {
 		myPanel.add(new JLabel("Date:"));
 		myPanel.add(datePick);
 		
-		int result = JOptionPane.showConfirmDialog(null, myPanel, "New User", JOptionPane.OK_CANCEL_OPTION);
+		int result = JOptionPane.showConfirmDialog(null, myPanel, "New Transaction", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			//Create transaction
 			Category cat = null;
 			String catID = categoryChoice.getSelectedItem();
 			double amount = Double.parseDouble(amountField.getText());
-			String type = "Income";
 			Date date = datePick.getDate();
 			
 			if(rdbtnExpense.isSelected()) {
 				amount = 0 - amount;
-				type = "Expense";
 			}
 			
 			for(int i=0; i<currentUser.getBudgetCategories().size(); i++) {
@@ -230,6 +287,98 @@ public class Controller {
 		
 	}
 	
+	private Transaction selectTransaction() {
+		Transaction trans = null;
+		JTextField idField = new JTextField(5);						
+		JPanel myPanel = new JPanel();
+		myPanel.add(new JLabel("Transaction:"));
+		myPanel.add(idField);
+		
+		int result = JOptionPane.showConfirmDialog(null, myPanel, "Select Transaction", JOptionPane.OK_CANCEL_OPTION);
+		if (result == JOptionPane.OK_OPTION) {
+			//Select transaction
+			int transID = Integer.parseInt(idField.getText());			
+			for(int i=0; i<currentUser.getTransactionRecord().size(); i++) {
+				if(transID==currentUser.getTransactionRecord().get(i).getId()) {
+					trans = currentUser.getTransactionRecord().get(i);
+				}
+			}
+		}
+		return trans;
+	}
+	
+	private void editTransaction(){
+		Transaction trans = selectTransaction();
+		if (trans != null) {
+			JTextField amountField = new JTextField(Double.toString(Math.abs(trans.getValue())), 5);
+			JRadioButton rdbtnIncome = new JRadioButton("Income"), rdbtnExpense = new JRadioButton("Expense");
+			if (trans.getValue()<0) {
+				rdbtnExpense.setSelected(true);
+			} else {
+				rdbtnIncome.setSelected(true);
+			}
+			Choice categoryChoice = new Choice();
+			//Populate categoryChoice based on currentUser
+			categoryChoice.removeAll();
+			for(int i = 0; i<currentUser.getBudgetCategories().size(); i++) {
+				categoryChoice.add(currentUser.getBudgetCategories().get(i).getTitle());
+				if (currentUser.getBudgetCategories().get(i).getTitle().compareTo(trans.getCategory().getTitle())==0) {
+					categoryChoice.select(i);
+				}
+			}
+			DatePicker datePick = new DatePicker(trans.getDate());
+					
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel("Amount:"));
+			myPanel.add(amountField);
+			myPanel.add(Box.createHorizontalStrut(15)); // a spacer				
+			myPanel.add(rdbtnIncome);
+			myPanel.add(rdbtnExpense);
+			myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+			myPanel.add(new JLabel("Category:"));
+			myPanel.add(categoryChoice);
+			myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+			myPanel.add(new JLabel("Date:"));
+			myPanel.add(datePick);
+			
+			int result = JOptionPane.showConfirmDialog(null, myPanel, "Edit Transaction", JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				//Edit transaction
+				Category cat = null;
+				String catID = categoryChoice.getSelectedItem();
+				double amount = Double.parseDouble(amountField.getText());
+				Date date = datePick.getDate();
+				
+				if(rdbtnExpense.isSelected()) {
+					amount = 0 - amount;
+				}
+				
+				for(int i=0; i<currentUser.getBudgetCategories().size(); i++) {
+					if(catID.compareTo(currentUser.getBudgetCategories().get(i).getTitle()) == 0) {
+						cat = currentUser.getBudgetCategories().get(i);
+					}
+				}
+				
+				trans.setCategory(cat);
+				currentUser.setAcctBalance(currentUser.getAcctBalance()+(amount-trans.getValue()));
+				trans.setValue(amount);
+				trans.setDate(date);
+				view.getLblBalanceAmt().setText(Double.toString(currentUser.getAcctBalance()));
+			}
+			populateTransactions();
+		}
+	}
+	
+	private void deleteTransaction(){
+		Transaction trans = selectTransaction();
+		if (trans != null) {
+			//Delete stuff
+			currentUser.removeTransaction(trans);
+			view.getLblBalanceAmt().setText(Double.toString(currentUser.getAcctBalance()));
+			populateTransactions();
+		}
+	}
+	
 	public User getCurrentUser() {
 		return currentUser;
 	}
@@ -238,6 +387,7 @@ public class Controller {
 		this.currentUser = currentUser;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public String removeTime(Date dateWithTime) {
 		
 		String dateWithoutTime, day, month, date, year = "";

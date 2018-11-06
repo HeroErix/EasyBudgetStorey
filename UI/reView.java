@@ -43,6 +43,10 @@ public class reView extends JFrame {
 	private JTabbedPane tabbedPane;
 	private JTextArea transactionList;
 	private JTextArea categoryList;
+	private JMenuItem mntmEditCatagory;
+	private JMenuItem mntmEditTransaction;
+	private JMenuItem mntmDeleteCatagory;
+	private JMenuItem mntmDeleteTransaction;
 	public reView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 772, 489);
@@ -122,10 +126,10 @@ public class reView extends JFrame {
 		mntmNewTransaction = new JMenuItem("New Transaction");
 		mnManageTransaction.add(mntmNewTransaction);
 		
-		JMenuItem mntmEditTransaction = new JMenuItem("Edit Transaction");
+		mntmEditTransaction = new JMenuItem("Edit Transaction");
 		mnManageTransaction.add(mntmEditTransaction);
 		
-		JMenuItem mntmDeleteTransaction = new JMenuItem("Delete Transaction");
+		mntmDeleteTransaction = new JMenuItem("Delete Transaction");
 		mnManageTransaction.add(mntmDeleteTransaction);
 		
 		JMenu mnSortTransaction = new JMenu("Sort");
@@ -162,10 +166,10 @@ public class reView extends JFrame {
 		mntmNewCatagory = new JMenuItem("New Catagory");
 		mnManageCatagory.add(mntmNewCatagory);
 		
-		JMenuItem mntmEditCatagory = new JMenuItem("Edit Catagory");
+		mntmEditCatagory = new JMenuItem("Edit Catagory");
 		mnManageCatagory.add(mntmEditCatagory);
 		
-		JMenuItem mntmDeleteCatagory = new JMenuItem("Delete Catagory");
+		mntmDeleteCatagory = new JMenuItem("Delete Catagory");
 		mnManageCatagory.add(mntmDeleteCatagory);
 		
 		JMenu mnSortCatagory = new JMenu("Sort");
@@ -213,5 +217,17 @@ public class reView extends JFrame {
 	}
 	public JTextArea getCategoryList() {
 		return categoryList;
+	}
+	public JMenuItem getMntmEditCatagory() {
+		return mntmEditCatagory;
+	}
+	public JMenuItem getMntmEditTransaction() {
+		return mntmEditTransaction;
+	}
+	public JMenuItem getMntmDeleteCatagory() {
+		return mntmDeleteCatagory;
+	}
+	public JMenuItem getMntmDeleteTransaction() {
+		return mntmDeleteTransaction;
 	}
 }
